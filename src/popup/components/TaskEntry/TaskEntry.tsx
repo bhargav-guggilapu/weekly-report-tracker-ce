@@ -156,9 +156,16 @@ function TaskEntry(props) {
         );
       })}
       <div>
+        <label
+          style={{
+            fontSize: "15px",
+            marginRight: "15px",
+          }}
+        >
+          Hours
+        </label>
         <input
           type="number"
-          placeholder="Hours"
           className="hours-input"
           min={0}
           max={24}

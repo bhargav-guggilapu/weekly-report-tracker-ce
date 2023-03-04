@@ -48,7 +48,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".task-input {\n  width: 70%;\n  padding: 10px 5px;\n  border-radius: 5px;\n  font-family: Arial;\n  resize: vertical;\n}\n\n.task-input:focus,\n.hours-input:focus {\n  outline: none;\n}\n\n.hours-input {\n  width: 30%;\n  text-align: center;\n  border-radius: 5px;\n  font-family: Arial;\n  padding: 10px;\n  margin-bottom: 10px;\n}\n", "",{"version":3,"sources":["webpack://./src/popup/components/TaskEntry/TaskEntry.css"],"names":[],"mappings":"AAAA;EACE,UAAU;EACV,iBAAiB;EACjB,kBAAkB;EAClB,kBAAkB;EAClB,gBAAgB;AAClB;;AAEA;;EAEE,aAAa;AACf;;AAEA;EACE,UAAU;EACV,kBAAkB;EAClB,kBAAkB;EAClB,kBAAkB;EAClB,aAAa;EACb,mBAAmB;AACrB","sourcesContent":[".task-input {\n  width: 70%;\n  padding: 10px 5px;\n  border-radius: 5px;\n  font-family: Arial;\n  resize: vertical;\n}\n\n.task-input:focus,\n.hours-input:focus {\n  outline: none;\n}\n\n.hours-input {\n  width: 30%;\n  text-align: center;\n  border-radius: 5px;\n  font-family: Arial;\n  padding: 10px;\n  margin-bottom: 10px;\n}\n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, ".task-input {\n  width: 70%;\n  padding: 10px 5px;\n  border-radius: 5px;\n  font-family: Arial;\n  resize: vertical;\n}\n\n.task-input:focus,\n.hours-input:focus {\n  outline: none;\n}\n\n.hours-input {\n  width: 25%;\n  text-align: center;\n  border-radius: 5px;\n  font-family: Arial;\n  padding: 10px;\n  margin-bottom: 10px;\n}\n", "",{"version":3,"sources":["webpack://./src/popup/components/TaskEntry/TaskEntry.css"],"names":[],"mappings":"AAAA;EACE,UAAU;EACV,iBAAiB;EACjB,kBAAkB;EAClB,kBAAkB;EAClB,gBAAgB;AAClB;;AAEA;;EAEE,aAAa;AACf;;AAEA;EACE,UAAU;EACV,kBAAkB;EAClB,kBAAkB;EAClB,kBAAkB;EAClB,aAAa;EACb,mBAAmB;AACrB","sourcesContent":[".task-input {\n  width: 70%;\n  padding: 10px 5px;\n  border-radius: 5px;\n  font-family: Arial;\n  resize: vertical;\n}\n\n.task-input:focus,\n.hours-input:focus {\n  outline: none;\n}\n\n.hours-input {\n  width: 25%;\n  text-align: center;\n  border-radius: 5px;\n  font-family: Arial;\n  padding: 10px;\n  margin-bottom: 10px;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -723,7 +723,11 @@ function TaskEntry(props) {
                     } }))));
         }),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { type: "number", placeholder: "Hours", className: "hours-input", min: 0, max: 24, value: hours, onChange: (e) => setHours(+e.target.value), onBlur: saveInCache })),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", { style: {
+                    fontSize: "15px",
+                    marginRight: "15px",
+                } }, "Hours"),
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { type: "number", className: "hours-input", min: 0, max: 24, value: hours, onChange: (e) => setHours(+e.target.value), onBlur: saveInCache })),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: {
                 width: "100%",
                 display: "flex",

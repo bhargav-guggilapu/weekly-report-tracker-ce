@@ -7,6 +7,7 @@ import SendIcon from "@mui/icons-material/Send";
 import { styled } from "@mui/material/styles";
 import { yellow } from "@mui/material/colors";
 import { sendDayReport } from "../sendDayReportHelper";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const ColorButton = styled(Button)<ButtonProps>(({ theme }) => ({
   color: theme.palette.getContrastText(yellow[500]),
@@ -186,18 +187,22 @@ function TaskEntry(props) {
           zIndex: 1,
         }}
       >
-        <ColorButton
-          variant="contained"
-          endIcon={<SendIcon />}
-          onClick={sendReport}
-          disabled={
-            entries.filter((entry) => entry.trim().length).length == 0 ||
-            hours == 0 ||
-            sendingData
-          }
-        >
-          Send
-        </ColorButton>
+        {sendingData ? (
+          <CircularProgress />
+        ) : (
+          <ColorButton
+            variant="contained"
+            endIcon={<SendIcon />}
+            onClick={sendReport}
+            disabled={
+              entries.filter((entry) => entry.trim().length).length == 0 ||
+              hours == 0 ||
+              sendingData
+            }
+          >
+            Send
+          </ColorButton>
+        )}
       </div>
     </div>
   );

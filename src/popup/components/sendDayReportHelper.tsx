@@ -7,9 +7,9 @@ export const sendDayReport = async (username, entries, hours) => {
     .add((4 - today.day() + 7) % 7, "days")
     .format("YYYY-MM-DD");
   return await fetch(
-    `https://weekly-report-manager-default-rtdb.firebaseio.com/${username}/${fromDate}%${toDate}/${moment().format(
-      "dddd"
-    )}.json`,
+    `https://weekly-report-manager-default-rtdb.firebaseio.com/${username}/${fromDate}|${toDate}/${moment().format(
+      "YYYY-MM-DD"
+    )}|${moment().format("dddd")}.json`,
     {
       method: "POST",
       body: JSON.stringify({ tasks: entries, hours }),

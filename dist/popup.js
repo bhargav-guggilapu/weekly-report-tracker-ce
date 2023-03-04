@@ -603,10 +603,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _mui_icons_material_AddCircle__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @mui/icons-material/AddCircle */ "./node_modules/@mui/icons-material/AddCircle.js");
 /* harmony import */ var _mui_icons_material_RemoveCircle__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @mui/icons-material/RemoveCircle */ "./node_modules/@mui/icons-material/RemoveCircle.js");
 /* harmony import */ var _mui_material_Button__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @mui/material/Button */ "./node_modules/@mui/material/Button/Button.js");
-/* harmony import */ var _mui_icons_material_Send__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @mui/icons-material/Send */ "./node_modules/@mui/icons-material/Send.js");
+/* harmony import */ var _mui_icons_material_Send__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @mui/icons-material/Send */ "./node_modules/@mui/icons-material/Send.js");
 /* harmony import */ var _mui_material_styles__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @mui/material/styles */ "./node_modules/@mui/material/styles/styled.js");
 /* harmony import */ var _mui_material_colors__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @mui/material/colors */ "./node_modules/@mui/material/colors/yellow.js");
 /* harmony import */ var _sendDayReportHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../sendDayReportHelper */ "./src/popup/components/sendDayReportHelper.tsx");
+/* harmony import */ var _mui_material_CircularProgress__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @mui/material/CircularProgress */ "./node_modules/@mui/material/CircularProgress/CircularProgress.js");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -616,6 +617,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
 
 
 
@@ -737,10 +739,9 @@ function TaskEntry(props) {
                 bottom: "5px",
                 right: "3px",
                 zIndex: 1,
-            } },
-            react__WEBPACK_IMPORTED_MODULE_0__.createElement(ColorButton, { variant: "contained", endIcon: react__WEBPACK_IMPORTED_MODULE_0__.createElement(_mui_icons_material_Send__WEBPACK_IMPORTED_MODULE_8__["default"], null), onClick: sendReport, disabled: entries.filter((entry) => entry.trim().length).length == 0 ||
-                    hours == 0 ||
-                    sendingData }, "Send"))));
+            } }, sendingData ? (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_mui_material_CircularProgress__WEBPACK_IMPORTED_MODULE_8__["default"], null)) : (react__WEBPACK_IMPORTED_MODULE_0__.createElement(ColorButton, { variant: "contained", endIcon: react__WEBPACK_IMPORTED_MODULE_0__.createElement(_mui_icons_material_Send__WEBPACK_IMPORTED_MODULE_9__["default"], null), onClick: sendReport, disabled: entries.filter((entry) => entry.trim().length).length == 0 ||
+                hours == 0 ||
+                sendingData }, "Send")))));
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (TaskEntry);
 
@@ -776,7 +777,7 @@ const sendDayReport = (username, entries, hours) => __awaiter(void 0, void 0, vo
     const toDate = today
         .add((4 - today.day() + 7) % 7, "days")
         .format("YYYY-MM-DD");
-    return yield fetch(`https://weekly-report-manager-default-rtdb.firebaseio.com/${username}/${fromDate}%${toDate}/${moment__WEBPACK_IMPORTED_MODULE_0___default()().format("dddd")}.json`, {
+    return yield fetch(`https://weekly-report-manager-default-rtdb.firebaseio.com/${username}/${fromDate}|${toDate}/${moment__WEBPACK_IMPORTED_MODULE_0___default()().format("YYYY-MM-DD")}|${moment__WEBPACK_IMPORTED_MODULE_0___default()().format("dddd")}.json`, {
         method: "POST",
         body: JSON.stringify({ tasks: entries, hours }),
         headers: {
@@ -1030,7 +1031,7 @@ react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["vendors-node_modules_mui_material_styles_styled_js-node_modules_mui_material_styles_useThemeP-d913a6","vendors-node_modules_mui_icons-material_AddCircle_js-node_modules_mui_icons-material_ArrowFor-c0d80e"], () => (__webpack_require__("./src/popup/popup.tsx")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["vendors-node_modules_mui_material_ButtonBase_ButtonBase_js-node_modules_mui_material_Circular-d40d0a","vendors-node_modules_mui_icons-material_AddCircle_js-node_modules_mui_icons-material_ArrowFor-084f4a"], () => (__webpack_require__("./src/popup/popup.tsx")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

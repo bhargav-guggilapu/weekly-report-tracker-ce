@@ -1,3 +1,4 @@
+import moment from "moment";
 import { sendDayReport } from "../popup/components/sendDayReportHelper";
 
 chrome.alarms.onAlarm.addListener((alarm) => {
@@ -52,15 +53,16 @@ const getAlarmTime = (time) => {
 
 var clearTime = new Date();
 clearTime.setHours(23);
-clearTime.setMinutes(59);
-clearTime.setSeconds(59);
+clearTime.setMinutes(50);
+clearTime.setSeconds(0);
 clearTime.setMilliseconds(0);
 
 var timeUntilClear = clearTime.getTime() - Date.now();
 
 setTimeout(function () {
   chrome.storage.local.get((res) => {
-    if (res.username) {
+    const currentDay = moment().day();
+    if (res.username && !(currentDay == 6 || currentDay == 0)) {
       sendDayReport(
         res.username,
         res.entries?.length > 0 ? res.entries : [],
@@ -70,7 +72,7 @@ setTimeout(function () {
     chrome.storage.local.set({
       filledToday: false,
       entries: null,
-      hours: null
+      hours: null,
     });
   });
   clearTime.setDate(clearTime.getDate() + 1);

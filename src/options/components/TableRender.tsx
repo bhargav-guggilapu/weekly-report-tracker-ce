@@ -73,29 +73,31 @@ export default function TableRender(props) {
               <StyledTableCell align="left">
                 {
                   <List>
-                    {row.tasks.map((task, i) => (
-                      <ListItem
-                        key={i}
-                        style={{
-                          paddingLeft: "0px",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                          }}
-                        >
-                          <span
+                    {row.tasks?.length > 0
+                      ? row.tasks.map((task, i) => (
+                          <ListItem
+                            key={i}
                             style={{
-                              marginRight: "15px",
+                              paddingLeft: "0px",
                             }}
                           >
-                            {i + 1}.)
-                          </span>
-                          <span>{task}</span>
-                        </div>
-                      </ListItem>
-                    ))}
+                            <div
+                              style={{
+                                display: "flex",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  marginRight: "15px",
+                                }}
+                              >
+                                {i + 1}.)
+                              </span>
+                              <span>{task}</span>
+                            </div>
+                          </ListItem>
+                        ))
+                      : "NOT FILLED"}
                   </List>
                 }
               </StyledTableCell>

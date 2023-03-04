@@ -36,7 +36,7 @@ export default function App() {
       const currentTimeline: any = data[`${fromDate}|${toDate}`];
       if (currentTimeline) {
         for (const key in currentTimeline) {
-          const dayWork: any = Object.values(currentTimeline[key])[0];
+          const dayWork: any = currentTimeline[key];
           setRows((rows) => {
             return [
               ...rows,

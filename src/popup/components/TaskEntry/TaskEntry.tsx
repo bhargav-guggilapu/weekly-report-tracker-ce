@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./TaskEntry.css";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
@@ -6,7 +6,6 @@ import Button, { ButtonProps } from "@mui/material/Button";
 import SendIcon from "@mui/icons-material/Send";
 import { styled } from "@mui/material/styles";
 import { yellow } from "@mui/material/colors";
-import moment from "moment";
 import { sendDayReport } from "../sendDayReportHelper";
 
 const ColorButton = styled(Button)<ButtonProps>(({ theme }) => ({
@@ -15,16 +14,21 @@ const ColorButton = styled(Button)<ButtonProps>(({ theme }) => ({
   "&:hover": {
     backgroundColor: yellow[700],
   },
+  "&:disabled": {
+    backgroundColor: yellow[300],
+  },
 }));
 
 function TaskEntry(props) {
   const [entries, setEntries] = useState([""]);
   const [sendingData, setSendingData] = useState(false);
   const [filledToday, setFilledToday] = useState(false);
+  const [hours, setHours] = useState(0);
 
   useEffect(() => {
     chrome.storage.local.get((res) => {
       setFilledToday(res.filledToday);
+      setHours(res.hours || 0);
       setEntries(res.entries?.length > 0 ? res.entries : [""]);
     });
   }, []);
@@ -37,17 +41,24 @@ function TaskEntry(props) {
 
   const sendReport = async () => {
     setSendingData(true);
-    const res = await sendDayReport(props.username, entries);
+    const res = await sendDayReport(props.username, entries, hours);
     if (res.status === 200) {
       setEntries([""]);
       setFilledToday(true);
       chrome.storage.local.set({
+        hours: null,
         entries: null,
         filledToday: true,
       });
     }
     setSendingData(false);
   };
+
+  const saveInCache = (_) =>
+    chrome.storage.local.set({
+      hours,
+      entries: entries.filter((entry) => entry.trim().length),
+    });
 
   if (filledToday) {
     return (
@@ -128,11 +139,7 @@ function TaskEntry(props) {
               placeholder={`Task ${index + 1}`}
               value={entry}
               onChange={(e) => handleChange(e, index)}
-              onBlur={(_) =>
-                chrome.storage.local.set({
-                  entries: entries.filter((entry) => entry.trim().length),
-                })
-              }
+              onBlur={saveInCache}
             />
             {entries.length != 1 && (
               <RemoveCircleIcon
@@ -148,6 +155,18 @@ function TaskEntry(props) {
           </div>
         );
       })}
+      <div>
+        <input
+          type="number"
+          placeholder="Hours"
+          className="hours-input"
+          min={0}
+          max={24}
+          value={hours}
+          onChange={(e) => setHours(+e.target.value)}
+          onBlur={saveInCache}
+        ></input>
+      </div>
       <div
         style={{
           width: "100%",
@@ -166,6 +185,7 @@ function TaskEntry(props) {
           onClick={sendReport}
           disabled={
             entries.filter((entry) => entry.trim().length).length == 0 ||
+            hours == 0 ||
             sendingData
           }
         >

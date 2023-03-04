@@ -4,7 +4,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name == "notification") {
     chrome.storage.local.get((res) => {
       let notificationMessage = "";
-      if (res.entries.length > 0) {
+      if (res.entries?.length > 0) {
         notificationMessage = "Don't forgot to add remaining tasks";
       } else {
         notificationMessage = "It's time to fill your daily report";
@@ -60,7 +60,9 @@ var timeUntilClear = clearTime.getTime() - Date.now();
 
 setTimeout(function () {
   chrome.storage.local.get((res) => {
-    sendDayReport(res.username, res.entries);
+    if (res.username && res.entries && res.hours) {
+      sendDayReport(res.username, res.entries, res.hours);
+    }
   });
   chrome.storage.local.set({
     filledToday: false,

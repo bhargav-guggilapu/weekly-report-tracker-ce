@@ -21614,7 +21614,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
     });
 };
 
-const sendDayReport = (username, entries) => __awaiter(void 0, void 0, void 0, function* () {
+const sendDayReport = (username, entries, hours) => __awaiter(void 0, void 0, void 0, function* () {
     const today = moment__WEBPACK_IMPORTED_MODULE_0___default()();
     const fromDate = today.day(today.day() >= 5 ? 5 : -2).format("YYYY-MM-DD");
     const toDate = today
@@ -21622,7 +21622,7 @@ const sendDayReport = (username, entries) => __awaiter(void 0, void 0, void 0, f
         .format("YYYY-MM-DD");
     return yield fetch(`https://weekly-report-manager-default-rtdb.firebaseio.com/${username}/${fromDate}%${toDate}/${moment__WEBPACK_IMPORTED_MODULE_0___default()().format("dddd")}.json`, {
         method: "POST",
-        body: JSON.stringify(entries),
+        body: JSON.stringify({ tasks: entries, hours }),
         headers: {
             "Content-Type": "application/json",
         },
@@ -21725,8 +21725,9 @@ __webpack_require__.r(__webpack_exports__);
 chrome.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name == "notification") {
         chrome.storage.local.get((res) => {
+            var _a;
             let notificationMessage = "";
-            if (res.entries.length > 0) {
+            if (((_a = res.entries) === null || _a === void 0 ? void 0 : _a.length) > 0) {
                 notificationMessage = "Don't forgot to add remaining tasks";
             }
             else {
@@ -21778,7 +21779,9 @@ clearTime.setMilliseconds(0);
 var timeUntilClear = clearTime.getTime() - Date.now();
 setTimeout(function () {
     chrome.storage.local.get((res) => {
-        (0,_popup_components_sendDayReportHelper__WEBPACK_IMPORTED_MODULE_0__.sendDayReport)(res.username, res.entries);
+        if (res.username && res.entries && res.hours) {
+            (0,_popup_components_sendDayReportHelper__WEBPACK_IMPORTED_MODULE_0__.sendDayReport)(res.username, res.entries, res.hours);
+        }
     });
     chrome.storage.local.set({
         filledToday: false,

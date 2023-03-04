@@ -1,6 +1,6 @@
 import moment from "moment";
 
-export const sendDayReport = async (username, entries) => {
+export const sendDayReport = async (username, entries, hours) => {
   const today = moment();
   const fromDate = today.day(today.day() >= 5 ? 5 : -2).format("YYYY-MM-DD");
   const toDate = today
@@ -12,7 +12,7 @@ export const sendDayReport = async (username, entries) => {
     )}.json`,
     {
       method: "POST",
-      body: JSON.stringify(entries),
+      body: JSON.stringify({ tasks: entries, hours }),
       headers: {
         "Content-Type": "application/json",
       },

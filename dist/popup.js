@@ -48,7 +48,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".task-input {\n    width: 70%;\n    padding: 10px 5px;\n    border-radius: 5px;\n    transition: border-color 0.3s;\n    font-family: Arial;\n    resize: vertical;\n  }\n  \n  .task-input:focus {\n    outline: none;\n  }", "",{"version":3,"sources":["webpack://./src/popup/components/TaskEntry/TaskEntry.css"],"names":[],"mappings":"AAAA;IACI,UAAU;IACV,iBAAiB;IACjB,kBAAkB;IAClB,6BAA6B;IAC7B,kBAAkB;IAClB,gBAAgB;EAClB;;EAEA;IACE,aAAa;EACf","sourcesContent":[".task-input {\n    width: 70%;\n    padding: 10px 5px;\n    border-radius: 5px;\n    transition: border-color 0.3s;\n    font-family: Arial;\n    resize: vertical;\n  }\n  \n  .task-input:focus {\n    outline: none;\n  }"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, ".task-input {\n  width: 70%;\n  padding: 10px 5px;\n  border-radius: 5px;\n  font-family: Arial;\n  resize: vertical;\n}\n\n.task-input:focus,\n.hours-input:focus {\n  outline: none;\n}\n\n.hours-input {\n  width: 30%;\n  text-align: center;\n  border-radius: 5px;\n  font-family: Arial;\n  padding: 10px;\n  margin-bottom: 10px;\n}\n", "",{"version":3,"sources":["webpack://./src/popup/components/TaskEntry/TaskEntry.css"],"names":[],"mappings":"AAAA;EACE,UAAU;EACV,iBAAiB;EACjB,kBAAkB;EAClB,kBAAkB;EAClB,gBAAgB;AAClB;;AAEA;;EAEE,aAAa;AACf;;AAEA;EACE,UAAU;EACV,kBAAkB;EAClB,kBAAkB;EAClB,kBAAkB;EAClB,aAAa;EACb,mBAAmB;AACrB","sourcesContent":[".task-input {\n  width: 70%;\n  padding: 10px 5px;\n  border-radius: 5px;\n  font-family: Arial;\n  resize: vertical;\n}\n\n.task-input:focus,\n.hours-input:focus {\n  outline: none;\n}\n\n.hours-input {\n  width: 30%;\n  text-align: center;\n  border-radius: 5px;\n  font-family: Arial;\n  padding: 10px;\n  margin-bottom: 10px;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -631,15 +631,20 @@ const ColorButton = (0,_mui_material_styles__WEBPACK_IMPORTED_MODULE_3__["defaul
     "&:hover": {
         backgroundColor: _mui_material_colors__WEBPACK_IMPORTED_MODULE_5__["default"][700],
     },
+    "&:disabled": {
+        backgroundColor: _mui_material_colors__WEBPACK_IMPORTED_MODULE_5__["default"][300],
+    },
 }));
 function TaskEntry(props) {
     const [entries, setEntries] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([""]);
     const [sendingData, setSendingData] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
     const [filledToday, setFilledToday] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
+    const [hours, setHours] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0);
     (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
         chrome.storage.local.get((res) => {
             var _a;
             setFilledToday(res.filledToday);
+            setHours(res.hours || 0);
             setEntries(((_a = res.entries) === null || _a === void 0 ? void 0 : _a.length) > 0 ? res.entries : [""]);
         });
     }, []);
@@ -650,16 +655,21 @@ function TaskEntry(props) {
     };
     const sendReport = () => __awaiter(this, void 0, void 0, function* () {
         setSendingData(true);
-        const res = yield (0,_sendDayReportHelper__WEBPACK_IMPORTED_MODULE_2__.sendDayReport)(props.username, entries);
+        const res = yield (0,_sendDayReportHelper__WEBPACK_IMPORTED_MODULE_2__.sendDayReport)(props.username, entries, hours);
         if (res.status === 200) {
             setEntries([""]);
             setFilledToday(true);
             chrome.storage.local.set({
+                hours: null,
                 entries: null,
                 filledToday: true,
             });
         }
         setSendingData(false);
+    });
+    const saveInCache = (_) => chrome.storage.local.set({
+        hours,
+        entries: entries.filter((entry) => entry.trim().length),
     });
     if (filledToday) {
         return (react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: {
@@ -706,14 +716,14 @@ function TaskEntry(props) {
                         borderRadius: "50%",
                         margin: "5px 0px",
                     } }, index + 1)),
-                react__WEBPACK_IMPORTED_MODULE_0__.createElement("textarea", { rows: 2, className: "task-input", placeholder: `Task ${index + 1}`, value: entry, onChange: (e) => handleChange(e, index), onBlur: (_) => chrome.storage.local.set({
-                        entries: entries.filter((entry) => entry.trim().length),
-                    }) }),
+                react__WEBPACK_IMPORTED_MODULE_0__.createElement("textarea", { rows: 2, className: "task-input", placeholder: `Task ${index + 1}`, value: entry, onChange: (e) => handleChange(e, index), onBlur: saveInCache }),
                 entries.length != 1 && (react__WEBPACK_IMPORTED_MODULE_0__.createElement(_mui_icons_material_RemoveCircle__WEBPACK_IMPORTED_MODULE_7__["default"], { onClick: () => setEntries((entries) => entries.filter((_, i) => i != index)), style: {
                         margin: "5px 0px",
                         cursor: "pointer",
                     } }))));
         }),
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null,
+            react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", { type: "number", placeholder: "Hours", className: "hours-input", min: 0, max: 24, value: hours, onChange: (e) => setHours(+e.target.value), onBlur: saveInCache })),
         react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", { style: {
                 width: "100%",
                 display: "flex",
@@ -725,6 +735,7 @@ function TaskEntry(props) {
                 zIndex: 1,
             } },
             react__WEBPACK_IMPORTED_MODULE_0__.createElement(ColorButton, { variant: "contained", endIcon: react__WEBPACK_IMPORTED_MODULE_0__.createElement(_mui_icons_material_Send__WEBPACK_IMPORTED_MODULE_8__["default"], null), onClick: sendReport, disabled: entries.filter((entry) => entry.trim().length).length == 0 ||
+                    hours == 0 ||
                     sendingData }, "Send"))));
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (TaskEntry);
@@ -755,7 +766,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
     });
 };
 
-const sendDayReport = (username, entries) => __awaiter(void 0, void 0, void 0, function* () {
+const sendDayReport = (username, entries, hours) => __awaiter(void 0, void 0, void 0, function* () {
     const today = moment__WEBPACK_IMPORTED_MODULE_0___default()();
     const fromDate = today.day(today.day() >= 5 ? 5 : -2).format("YYYY-MM-DD");
     const toDate = today
@@ -763,7 +774,7 @@ const sendDayReport = (username, entries) => __awaiter(void 0, void 0, void 0, f
         .format("YYYY-MM-DD");
     return yield fetch(`https://weekly-report-manager-default-rtdb.firebaseio.com/${username}/${fromDate}%${toDate}/${moment__WEBPACK_IMPORTED_MODULE_0___default()().format("dddd")}.json`, {
         method: "POST",
-        body: JSON.stringify(entries),
+        body: JSON.stringify({ tasks: entries, hours }),
         headers: {
             "Content-Type": "application/json",
         },
@@ -1015,7 +1026,7 @@ react_dom__WEBPACK_IMPORTED_MODULE_1__.render(react__WEBPACK_IMPORTED_MODULE_0__
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["vendors-node_modules_react-dom_index_js","vendors-node_modules_mui_icons-material_AddCircle_js-node_modules_mui_icons-material_ArrowFor-c0d80e"], () => (__webpack_require__("./src/popup/popup.tsx")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["vendors-node_modules_mui_material_styles_styled_js-node_modules_mui_material_styles_useThemeP-d913a6","vendors-node_modules_mui_icons-material_AddCircle_js-node_modules_mui_icons-material_ArrowFor-c0d80e"], () => (__webpack_require__("./src/popup/popup.tsx")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

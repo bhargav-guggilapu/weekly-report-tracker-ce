@@ -778,7 +778,7 @@ const sendDayReport = (username, entries, hours) => __awaiter(void 0, void 0, vo
         .add((4 - today.day() + 7) % 7, "days")
         .format("YYYY-MM-DD");
     return yield fetch(`https://weekly-report-manager-default-rtdb.firebaseio.com/${username}/${fromDate}|${toDate}/${moment__WEBPACK_IMPORTED_MODULE_0___default()().format("YYYY-MM-DD")}|${moment__WEBPACK_IMPORTED_MODULE_0___default()().format("dddd")}.json`, {
-        method: "POST",
+        method: "PUT",
         body: JSON.stringify({ tasks: entries, hours }),
         headers: {
             "Content-Type": "application/json",

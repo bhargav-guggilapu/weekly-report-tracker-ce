@@ -11,7 +11,7 @@ export const sendDayReport = async (username, entries, hours) => {
       "YYYY-MM-DD"
     )}|${moment().format("dddd")}.json`,
     {
-      method: "POST",
+      method: "PUT",
       body: JSON.stringify({ tasks: entries, hours }),
       headers: {
         "Content-Type": "application/json",

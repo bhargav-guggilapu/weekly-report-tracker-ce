@@ -21621,7 +21621,7 @@ const sendDayReport = (username, entries, hours) => __awaiter(void 0, void 0, vo
         .add((4 - today.day() + 7) % 7, "days")
         .format("YYYY-MM-DD");
     return yield fetch(`https://weekly-report-manager-default-rtdb.firebaseio.com/${username}/${fromDate}|${toDate}/${moment__WEBPACK_IMPORTED_MODULE_0___default()().format("YYYY-MM-DD")}|${moment__WEBPACK_IMPORTED_MODULE_0___default()().format("dddd")}.json`, {
-        method: "POST",
+        method: "PUT",
         body: JSON.stringify({ tasks: entries, hours }),
         headers: {
             "Content-Type": "application/json",
@@ -21779,12 +21779,14 @@ clearTime.setMilliseconds(0);
 var timeUntilClear = clearTime.getTime() - Date.now();
 setTimeout(function () {
     chrome.storage.local.get((res) => {
+        var _a;
         if (res.username) {
-            (0,_popup_components_sendDayReportHelper__WEBPACK_IMPORTED_MODULE_0__.sendDayReport)(res.username, res.entries || [], res.hours || 0);
+            (0,_popup_components_sendDayReportHelper__WEBPACK_IMPORTED_MODULE_0__.sendDayReport)(res.username, ((_a = res.entries) === null || _a === void 0 ? void 0 : _a.length) > 0 ? res.entries : [], res.hours || 0);
         }
         chrome.storage.local.set({
             filledToday: false,
             entries: null,
+            hours: null
         });
     });
     clearTime.setDate(clearTime.getDate() + 1);

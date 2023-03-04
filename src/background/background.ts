@@ -61,11 +61,16 @@ var timeUntilClear = clearTime.getTime() - Date.now();
 setTimeout(function () {
   chrome.storage.local.get((res) => {
     if (res.username) {
-      sendDayReport(res.username, res.entries || [], res.hours || 0);
+      sendDayReport(
+        res.username,
+        res.entries?.length > 0 ? res.entries : [],
+        res.hours || 0
+      );
     }
     chrome.storage.local.set({
       filledToday: false,
       entries: null,
+      hours: null
     });
   });
   clearTime.setDate(clearTime.getDate() + 1);

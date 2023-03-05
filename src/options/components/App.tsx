@@ -98,27 +98,31 @@ export default function App() {
     const doc = new jsPDF({});
     doc.text(`Weekly Report for ${getCurrentTimeline()}`, 15, 10);
 
-    autoTable(doc, {
-      margin: { top: 20 },
-      head: [["Name", "Date", "Tasks", "Hours"]],
-      body: currentUserRows.map((row) => [
-        currentUser,
-        row.date + " (" + row.day + ")",
-        row.tasks.join("\n\n"),
-        row.hours,
-      ]),
-    });
-
-    for (const user in remainingUserRows) {
+    if (currentUserRows.length > 0) {
       autoTable(doc, {
+        margin: { top: 20 },
         head: [["Name", "Date", "Tasks", "Hours"]],
-        body: remainingUserRows[user].map((row) => [
-          user,
+        body: currentUserRows.map((row) => [
+          currentUser,
           row.date + " (" + row.day + ")",
           row.tasks.join("\n\n"),
           row.hours,
         ]),
       });
+    }
+
+    for (const user in remainingUserRows) {
+      if (remainingUserRows[user].length > 0) {
+        autoTable(doc, {
+          head: [["Name", "Date", "Tasks", "Hours"]],
+          body: remainingUserRows[user].map((row) => [
+            user,
+            row.date + " (" + row.day + ")",
+            row.tasks.join("\n\n"),
+            row.hours,
+          ]),
+        });
+      }
     }
 
     doc.save(`${getCurrentTimeline()}.pdf`);

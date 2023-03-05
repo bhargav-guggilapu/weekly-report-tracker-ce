@@ -70,7 +70,7 @@ export default function App() {
               return {
                 ...userRows,
                 [userObject.user]: generateData(
-                  remainingUserRows[userObject.user] || [],
+                  userRows[userObject.user] || [],
                   dayName,
                   dayWork
                 ),
@@ -100,13 +100,22 @@ export default function App() {
 
     if (currentUserRows.length > 0) {
       autoTable(doc, {
+        bodyStyles: {
+          lineColor: "black",
+          lineWidth: 0.1,
+        },
+        headStyles: {
+          fillColor: "black",
+          lineColor: "black",
+          lineWidth: 0.1,
+        },
         margin: { top: 20 },
         head: [["Name", "Date", "Tasks", "Hours"]],
         body: currentUserRows.map((row) => [
           currentUser,
           row.date + " (" + row.day + ")",
-          row.tasks.join("\n\n"),
-          row.hours,
+          row.tasks ? row.tasks.join("\n\n") : "NOT FILLED",
+          row.hours || 0,
         ]),
       });
     }
@@ -114,12 +123,21 @@ export default function App() {
     for (const user in remainingUserRows) {
       if (remainingUserRows[user].length > 0) {
         autoTable(doc, {
+          bodyStyles: {
+            lineColor: "black",
+            lineWidth: 0.1,
+          },
+          headStyles: {
+            fillColor: "black",
+            lineColor: "black",
+            lineWidth: 0.1,
+          },
           head: [["Name", "Date", "Tasks", "Hours"]],
           body: remainingUserRows[user].map((row) => [
             user,
             row.date + " (" + row.day + ")",
-            row.tasks.join("\n\n"),
-            row.hours,
+            row.tasks ? row.tasks.join("\n\n") : "NOT FILLED",
+            row.hours || 0,
           ]),
         });
       }

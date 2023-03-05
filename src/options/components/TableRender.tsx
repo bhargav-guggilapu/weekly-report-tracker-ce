@@ -31,7 +31,10 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 export default function TableRender(props) {
   return (
-    <TableContainer component={Paper} style={{ width: "fit-content" }}>
+    <TableContainer
+      component={Paper}
+      style={{ width: "fit-content", marginBottom: "30px" }}
+    >
       <Table
         sx={{ minWidth: 700, maxWidth: 1000 }}
         aria-label="customized table"
@@ -101,7 +104,7 @@ export default function TableRender(props) {
                   </List>
                 }
               </StyledTableCell>
-              <StyledTableCell align="center">{row.hours}</StyledTableCell>
+              <StyledTableCell align="center">{row.hours || 0}</StyledTableCell>
             </StyledTableRow>
           ))}
         </TableBody>

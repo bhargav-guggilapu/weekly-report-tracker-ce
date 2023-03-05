@@ -1,76 +1,172 @@
 import CircularProgress from "@mui/material/CircularProgress";
-import moment from "moment";
 import React, { useEffect, useState } from "react";
+import { getCurrentTimeline } from "../../popup/components/sendDayReportHelper";
 import TableRender from "./TableRender";
+import "./App.css";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import Button, { ButtonProps } from "@mui/material/Button";
+import DownloadForOfflineIcon from "@mui/icons-material/DownloadForOffline";
+import { styled } from "@mui/material/styles";
+import { yellow } from "@mui/material/colors";
 
 function createData(date: string, day: string, tasks: string[], hours: number) {
   return { date, day, tasks, hours };
 }
 
+const ColorButton = styled(Button)<ButtonProps>(({ theme }) => ({
+  color: theme.palette.getContrastText(yellow[500]),
+  backgroundColor: yellow[500],
+  "&:hover": {
+    backgroundColor: yellow[700],
+  },
+  "&:disabled": {
+    backgroundColor: yellow[300],
+  },
+}));
+
 export default function App() {
-  const [rows, setRows] = useState([]);
+  const [currentUserRows, setCurrentUserRows] = useState([]);
+  const [remainingUserRows, setRemainingUserRows] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState("");
 
   useEffect(() => {
     chrome.storage.local.get((res) => {
-      if (res.username) {
-        getData(res.username);
-      }
+      setCurrentUser(res.username);
+      getData(res.username);
     });
   }, []);
 
   const getData = async (username) => {
     setIsLoading(true);
     const response = await fetch(
-      `https://weekly-report-manager-default-rtdb.firebaseio.com/${username}.json`
+      `https://weekly-report-manager-default-rtdb.firebaseio.com/.json`
     );
     const data = await response.json();
     if (data) {
-      const today = moment();
-      const fromDate = today
-        .day(today.day() >= 5 ? 5 : -2)
-        .format("YYYY-MM-DD");
-      const toDate = today
-        .add((4 - today.day() + 7) % 7, "days")
-        .format("YYYY-MM-DD");
-      const currentTimeline: any = data[`${fromDate}|${toDate}`];
-      if (currentTimeline) {
-        for (const key in currentTimeline) {
-          const dayWork: any = currentTimeline[key];
-          setRows((rows) => {
-            return [
-              ...rows,
-              createData(
-                key.split("|")[0],
-                key.split("|")[1],
-                dayWork.tasks,
-                dayWork.hours
-              ),
-            ];
-          });
+      for (const user in data) {
+        if (user == username) {
+          generateTable({ userData: data[user], user }, true);
+        } else {
+          generateTable({ userData: data[user], user });
         }
       }
     }
     setIsLoading(false);
   };
 
+  const generateTable = (userObject, currentUser?) => {
+    if (userObject.userData) {
+      const currentTimelineData: any =
+        userObject.userData[getCurrentTimeline()];
+      if (currentTimelineData) {
+        for (const dayName in currentTimelineData) {
+          const dayWork: any = currentTimelineData[dayName];
+          if (currentUser) {
+            setCurrentUserRows((rows) => generateData(rows, dayName, dayWork));
+          } else {
+            setRemainingUserRows((userRows) => {
+              return {
+                ...userRows,
+                [userObject.user]: generateData(
+                  remainingUserRows[userObject.user] || [],
+                  dayName,
+                  dayWork
+                ),
+              };
+            });
+          }
+        }
+      }
+    }
+  };
+
+  const generateData = (rows, dayName, dayWork) => {
+    return [
+      ...rows,
+      createData(
+        dayName.split("|")[0],
+        dayName.split("|")[1],
+        dayWork.tasks,
+        dayWork.hours
+      ),
+    ];
+  };
+
+  const saveAsPdf = () => {
+    const doc = new jsPDF({});
+    doc.text(`Weekly Report for ${getCurrentTimeline()}`, 15, 10);
+
+    autoTable(doc, {
+      margin: { top: 20 },
+      head: [["Name", "Date", "Tasks", "Hours"]],
+      body: currentUserRows.map((row) => [
+        currentUser,
+        row.date + " (" + row.day + ")",
+        row.tasks.join("\n\n"),
+        row.hours,
+      ]),
+    });
+
+    for (const user in remainingUserRows) {
+      autoTable(doc, {
+        head: [["Name", "Date", "Tasks", "Hours"]],
+        body: remainingUserRows[user].map((row) => [
+          user,
+          row.date + " (" + row.day + ")",
+          row.tasks.join("\n\n"),
+          row.hours,
+        ]),
+      });
+    }
+
+    doc.save(`${getCurrentTimeline()}.pdf`);
+  };
+
   return (
-    <div
-      style={{
-        width: "100%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      <h1>Your Weekly Report</h1>
-      {isLoading ? (
-        <CircularProgress />
-      ) : rows.length > 0 ? (
-        <TableRender rows={rows} />
-      ) : (
-        <h3>No Data Found</h3>
-      )}
-    </div>
+    <>
+      <div className="table-alignment">
+        <ColorButton
+          variant="contained"
+          endIcon={<DownloadForOfflineIcon />}
+          onClick={saveAsPdf}
+          disabled={isLoading}
+        >
+          Download As PDF
+        </ColorButton>
+        <h1>Your Weekly Report</h1>
+        {isLoading ? (
+          <CircularProgress />
+        ) : currentUserRows.length > 0 ? (
+          <TableRender rows={currentUserRows} />
+        ) : (
+          <h3>No Data Found</h3>
+        )}
+      </div>
+
+      <div
+        className="table-alignment"
+        style={{
+          marginTop: "30px",
+        }}
+      >
+        <h1>Others Weekly Reports</h1>
+        {isLoading ? (
+          <CircularProgress />
+        ) : Object.keys(remainingUserRows).length > 0 ? (
+          Object.keys(remainingUserRows).map((user, i) => {
+            return (
+              <div key={i}>
+                <h3>{user}</h3>
+                <TableRender rows={remainingUserRows[user]} />
+              </div>
+            );
+          })
+        ) : (
+          <h3>No Data Found</h3>
+        )}
+      </div>
+    </>
   );
 }

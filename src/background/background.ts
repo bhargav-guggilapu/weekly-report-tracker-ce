@@ -50,32 +50,3 @@ const getAlarmTime = (time) => {
     return -1;
   }
 };
-
-var clearTime = new Date();
-clearTime.setHours(23);
-clearTime.setMinutes(50);
-clearTime.setSeconds(0);
-clearTime.setMilliseconds(0);
-
-var timeUntilClear = clearTime.getTime() - Date.now();
-
-setTimeout(function () {
-  chrome.storage.local.get((res) => {
-    const currentDay = moment().day();
-    if (res.username && !(currentDay == 6 || currentDay == 0)) {
-      sendDayReport(
-        res.username,
-        res.entries?.length > 0 ? res.entries : [],
-        res.hours || 0
-      );
-    }
-    chrome.storage.local.set({
-      filledToday: false,
-      entries: null,
-      hours: null,
-    });
-  });
-  clearTime.setDate(clearTime.getDate() + 1);
-  timeUntilClear = clearTime.getTime() - Date.now();
-  setTimeout(arguments.callee, timeUntilClear);
-}, timeUntilClear);

@@ -23,12 +23,10 @@ const ColorButton = styled(Button)<ButtonProps>(({ theme }) => ({
 function TaskEntry(props) {
   const [entries, setEntries] = useState([""]);
   const [sendingData, setSendingData] = useState(false);
-  const [filledToday, setFilledToday] = useState(false);
   const [hours, setHours] = useState(0);
 
   useEffect(() => {
     chrome.storage.local.get((res) => {
-      setFilledToday(res.filledToday);
       setHours(res.hours || 0);
       setEntries(res.entries?.length > 0 ? res.entries : [""]);
     });
@@ -45,11 +43,9 @@ function TaskEntry(props) {
     const res = await sendDayReport(props.username, entries, hours);
     if (res.status === 200) {
       setEntries([""]);
-      setFilledToday(true);
       chrome.storage.local.set({
         hours: null,
         entries: null,
-        filledToday: true,
       });
     }
     setSendingData(false);
@@ -60,24 +56,6 @@ function TaskEntry(props) {
       hours,
       entries: entries.filter((entry) => entry.trim().length),
     });
-
-  if (filledToday) {
-    return (
-      <div
-        style={{
-          width: "350px",
-          minHeight: "250px",
-          backgroundColor: "rgb(50, 50, 50)",
-          color: "whitesmoke",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <h1>Today's Report Submitted!</h1>
-      </div>
-    );
-  }
 
   return (
     <div

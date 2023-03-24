@@ -1,4 +1,5 @@
-import * as React from "react";
+import React, { useState } from "react";
+import "../../popup/components/TaskEntry/TaskEntry.css";
 import { styled } from "@mui/material/styles";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -8,7 +9,20 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import ListItem from "@mui/material/ListItem";
+import EditIcon from "@mui/icons-material/Edit";
+import DoneIcon from "@mui/icons-material/Done";
+import ClearIcon from "@mui/icons-material/Clear";
 import List from "@mui/material/List";
+import { sendDayReport } from "../../popup/components/sendDayReportHelper";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert, { AlertProps } from "@mui/material/Alert";
+
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
+  props,
+  ref
+) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -30,6 +44,35 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 export default function TableRender(props) {
+  const [editing, setEditing] = useState(-1);
+  const [hours, setHours] = useState(0);
+  const [tasks, setTasks] = useState([""]);
+  const [open, setOpen] = React.useState(false);
+
+  const handleChange = (e, i) => {
+    const newTasks = [...tasks];
+    newTasks[i] = e.target.value;
+    setTasks(newTasks);
+  };
+
+  const onSave = async (row) => {
+    if (tasks.filter((entry) => entry.trim().length).length == 0 || hours < 0) {
+      setOpen(true);
+    } else {
+      props.setIsLoading(true);
+      setEditing(-1);
+      const res = await sendDayReport(
+        props.user,
+        tasks,
+        hours,
+        row.date + "|" + row.day
+      );
+      if (res.status === 200) {
+        props.getData();
+      }
+    }
+  };
+
   return (
     <TableContainer
       component={Paper}
@@ -42,7 +85,7 @@ export default function TableRender(props) {
         <TableHead>
           <TableRow>
             <StyledTableCell
-              align="justify"
+              align="center"
               style={{
                 fontWeight: "bold",
               }}
@@ -50,7 +93,7 @@ export default function TableRender(props) {
               Date
             </StyledTableCell>
             <StyledTableCell
-              align="left"
+              align="center"
               style={{
                 fontWeight: "bold",
               }}
@@ -65,16 +108,31 @@ export default function TableRender(props) {
             >
               Hours
             </StyledTableCell>
+            {props.user && <StyledTableCell align="center" />}
           </TableRow>
         </TableHead>
         <TableBody>
           {props.rows.map((row, j) => (
             <StyledTableRow key={j}>
-              <StyledTableCell align="justify" component="th" scope="row">
+              <StyledTableCell align="center" component="th" scope="row">
                 {row.date + " (" + row.day + ")"}
               </StyledTableCell>
-              <StyledTableCell align="left">
-                {
+              <StyledTableCell align="center">
+                {editing == j ? (
+                  tasks.map((task, index) => {
+                    return (
+                      <textarea
+                        key={index}
+                        rows={2}
+                        className="task-input"
+                        style={{ width: "100%" }}
+                        placeholder={`Task ${index + 1}`}
+                        value={task}
+                        onChange={(e) => handleChange(e, index)}
+                      />
+                    );
+                  })
+                ) : (
                   <List>
                     {row.tasks?.length > 0
                       ? row.tasks.map((task, i) => (
@@ -102,13 +160,55 @@ export default function TableRender(props) {
                         ))
                       : "NOT FILLED"}
                   </List>
-                }
+                )}
               </StyledTableCell>
-              <StyledTableCell align="center">{row.hours || 0}</StyledTableCell>
+              <StyledTableCell align="center">
+                {editing == j ? (
+                  <input
+                    type="number"
+                    min={0}
+                    className="hours-input"
+                    style={{ width: "100%" }}
+                    max={24}
+                    value={hours}
+                    onChange={(e) => setHours(+e.target.value)}
+                  ></input>
+                ) : (
+                  row.hours || 0
+                )}
+              </StyledTableCell>
+              {props.user && (
+                <StyledTableCell align="center">
+                  {editing == j ? (
+                    <>
+                      <DoneIcon
+                        style={{ cursor: "pointer" }}
+                        onClick={() => onSave(row)}
+                      />
+                      <ClearIcon
+                        style={{ cursor: "pointer" }}
+                        onClick={() => setEditing(-1)}
+                      />
+                    </>
+                  ) : (
+                    <EditIcon
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        setHours(row.hours);
+                        setTasks(row.tasks);
+                        setEditing(j);
+                      }}
+                    />
+                  )}
+                </StyledTableCell>
+              )}
             </StyledTableRow>
           ))}
         </TableBody>
       </Table>
+      <Snackbar open={open} autoHideDuration={3000}>
+        <Alert severity="error">Invalid Entries!</Alert>
+      </Snackbar>
     </TableContainer>
   );
 }

@@ -43,6 +43,7 @@ function TaskEntry(props) {
     const res = await sendDayReport(props.username, entries, hours);
     if (res.status === 200) {
       setEntries([""]);
+      setHours(0);
       chrome.storage.local.set({
         hours: null,
         entries: null,
@@ -174,7 +175,7 @@ function TaskEntry(props) {
             onClick={sendReport}
             disabled={
               entries.filter((entry) => entry.trim().length).length == 0 ||
-              hours == 0 ||
+              hours < 0 ||
               sendingData
             }
           >

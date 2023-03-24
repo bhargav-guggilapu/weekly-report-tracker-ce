@@ -1,13 +1,13 @@
 import moment from "moment";
 
-export const sendDayReport = async (username, entries, hours) => {
+export const sendDayReport = async (username, tasks, hours, timeline?) => {
   return await fetch(
-    `https://weekly-report-manager-default-rtdb.firebaseio.com/${username}/${getCurrentTimeline()}/${moment().format(
-      "YYYY-MM-DD"
-    )}|${moment().format("dddd")}.json`,
+    `https://weekly-report-manager-default-rtdb.firebaseio.com/${username}/${getCurrentTimeline()}/${
+      timeline || moment().format("YYYY-MM-DD") + "|" + moment().format("dddd")
+    }.json`,
     {
       method: "PUT",
-      body: JSON.stringify({ tasks: entries, hours }),
+      body: JSON.stringify({ tasks, hours }),
       headers: {
         "Content-Type": "application/json",
       },

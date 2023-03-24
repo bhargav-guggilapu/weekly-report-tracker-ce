@@ -1,6 +1,3 @@
-import moment from "moment";
-import { sendDayReport } from "../popup/components/sendDayReportHelper";
-
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name == "notification") {
     chrome.storage.local.get((res) => {

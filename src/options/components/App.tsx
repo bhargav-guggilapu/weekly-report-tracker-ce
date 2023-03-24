@@ -39,6 +39,8 @@ export default function App() {
   }, []);
 
   const getData = async (username) => {
+    setCurrentUserRows([]);
+    setRemainingUserRows({});
     setIsLoading(true);
     const response = await fetch(
       `https://weekly-report-manager-default-rtdb.firebaseio.com/.json`
@@ -161,7 +163,12 @@ export default function App() {
         {isLoading ? (
           <CircularProgress />
         ) : currentUserRows.length > 0 ? (
-          <TableRender rows={currentUserRows} />
+          <TableRender
+            rows={currentUserRows}
+            user={currentUser}
+            getData={() => getData(currentUser)}
+            setIsLoading={setIsLoading}
+          />
         ) : (
           <h3>No Data Found</h3>
         )}

@@ -195,6 +195,7 @@ export default function App() {
           <TableRender
             rows={currentUserRows}
             user={currentUser}
+            timeline={timeline}
             getData={() => getData(currentUser)}
             setIsLoading={setIsLoading}
           />

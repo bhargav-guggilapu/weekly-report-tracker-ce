@@ -66,7 +66,13 @@ export default function TableRender(props) {
     } else {
       props.setIsLoading(true);
       setEditing(-1);
-      const res = await sendDayReport(props.user, tasks, hours, row.date);
+      const res = await sendDayReport(
+        props.user,
+        tasks,
+        hours,
+        row.date,
+        props.timeline
+      );
       if (res.status === 200) {
         props.getData();
       }

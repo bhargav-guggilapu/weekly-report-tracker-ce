@@ -1,6 +1,9 @@
 import CircularProgress from "@mui/material/CircularProgress";
-import React, { useEffect, useState } from "react";
-import { getCurrentTimeline } from "../../popup/components/sendDayReportHelper";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  getCurrentTimeline,
+  getTimelines,
+} from "../../popup/components/sendDayReportHelper";
 import TableRender from "./TableRender";
 import "./App.css";
 import jsPDF from "jspdf";
@@ -9,6 +12,11 @@ import Button, { ButtonProps } from "@mui/material/Button";
 import DownloadForOfflineIcon from "@mui/icons-material/DownloadForOffline";
 import { styled } from "@mui/material/styles";
 import { yellow } from "@mui/material/colors";
+import moment from "moment";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 
 function createData(date: string, day: string, tasks: string[], hours: number) {
   return { date, day, tasks, hours };
@@ -30,6 +38,10 @@ export default function App() {
   const [remainingUserRows, setRemainingUserRows] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState("");
+  const [timeline, setTimeline] = useState(
+    useMemo(() => getCurrentTimeline(), [])
+  );
+  const timelines = useMemo(() => getTimelines(), []);
 
   useEffect(() => {
     chrome.storage.local.get((res) => {
@@ -38,7 +50,7 @@ export default function App() {
     });
   }, []);
 
-  const getData = async (username) => {
+  const getData = async (username, selectedTimeline = timeline) => {
     setCurrentUserRows([]);
     setRemainingUserRows({});
     setIsLoading(true);
@@ -49,19 +61,18 @@ export default function App() {
     if (data) {
       for (const user in data) {
         if (user == username) {
-          generateTable({ userData: data[user], user }, true);
+          generateTable({ userData: data[user], user }, selectedTimeline, true);
         } else {
-          generateTable({ userData: data[user], user });
+          generateTable({ userData: data[user], user }, selectedTimeline);
         }
       }
     }
     setIsLoading(false);
   };
 
-  const generateTable = (userObject, currentUser?) => {
+  const generateTable = (userObject, selectedTimeline, currentUser?) => {
     if (userObject.userData) {
-      const currentTimelineData: any =
-        userObject.userData[getCurrentTimeline()];
+      const currentTimelineData: any = userObject.userData[selectedTimeline];
       if (currentTimelineData) {
         for (const dayName in currentTimelineData) {
           const dayWork: any = currentTimelineData[dayName];
@@ -88,8 +99,8 @@ export default function App() {
     return [
       ...rows,
       createData(
-        dayName.split("|")[0],
-        dayName.split("|")[1],
+        dayName,
+        moment(dayName).format("dddd"),
         dayWork.tasks,
         dayWork.hours
       ),
@@ -98,7 +109,7 @@ export default function App() {
 
   const saveAsPdf = () => {
     const doc = new jsPDF({});
-    doc.text(`Weekly Report for ${getCurrentTimeline()}`, 15, 10);
+    doc.text(`Weekly Report for ${timeline}`, 15, 10);
 
     if (currentUserRows.length > 0) {
       autoTable(doc, {
@@ -145,7 +156,7 @@ export default function App() {
       }
     }
 
-    doc.save(`${getCurrentTimeline()}.pdf`);
+    doc.save(`${timeline}.pdf`);
   };
 
   return (
@@ -159,6 +170,24 @@ export default function App() {
         >
           Download As PDF
         </ColorButton>
+        <FormControl sx={{ mt: 2 }}>
+          <InputLabel id="timeline-label">Timeline</InputLabel>
+          <Select
+            labelId="timeline-label"
+            value={timeline}
+            label="Timeline"
+            onChange={(event) => {
+              setTimeline(event.target.value);
+              getData(currentUser, event.target.value);
+            }}
+          >
+            {timelines.map((timeline) => (
+              <MenuItem key={timeline} value={timeline}>
+                {timeline}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <h1>Your Weekly Report</h1>
         {isLoading ? (
           <CircularProgress />

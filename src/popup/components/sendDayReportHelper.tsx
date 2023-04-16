@@ -1,9 +1,9 @@
 import moment from "moment";
 
-export const sendDayReport = async (username, tasks, hours, timeline?) => {
+export const sendDayReport = async (username, tasks, hours, customDate?) => {
   return await fetch(
     `https://weekly-report-manager-default-rtdb.firebaseio.com/${username}/${getCurrentTimeline()}/${
-      timeline || moment().format("YYYY-MM-DD") + "|" + moment().format("dddd")
+      customDate || moment().format("YYYY-MM-DD")
     }.json`,
     {
       method: "PUT",
@@ -22,4 +22,19 @@ export const getCurrentTimeline = () => {
     .add((4 - today.day() + 7) % 7, "days")
     .format("YYYY-MM-DD");
   return `${fromDate}_${toDate}`;
+};
+
+export const getTimelines = () => {
+  const currentTimeline = getCurrentTimeline();
+  let currentTimelineStart = currentTimeline.split("_")[0];
+  const timelines = [currentTimeline];
+  while (currentTimelineStart != "2023-04-14") {
+    const toDate = moment(currentTimelineStart)
+      .subtract(1, "days")
+      .format("YYYY-MM-DD");
+    const fromDate = moment(toDate).subtract(6, "days").format("YYYY-MM-DD");
+    timelines.push(`${fromDate}_${toDate}`);
+    currentTimelineStart = fromDate;
+  }
+  return timelines;
 };

@@ -10,8 +10,9 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import ListItem from "@mui/material/ListItem";
 import EditIcon from "@mui/icons-material/Edit";
-import DoneIcon from "@mui/icons-material/Done";
-import ClearIcon from "@mui/icons-material/Clear";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import List from "@mui/material/List";
 import { sendDayReport } from "../../popup/components/sendDayReportHelper";
 import Snackbar from "@mui/material/Snackbar";
@@ -56,17 +57,16 @@ export default function TableRender(props) {
   };
 
   const onSave = async (row) => {
-    if (tasks.filter((entry) => entry.trim().length).length == 0 || hours < 0) {
+    if (
+      tasks.filter((entry) => entry.trim().length == 0).length > 0 ||
+      hours < 0 ||
+      hours > 24
+    ) {
       setOpen(true);
     } else {
       props.setIsLoading(true);
       setEditing(-1);
-      const res = await sendDayReport(
-        props.user,
-        tasks,
-        hours,
-        row.date + "|" + row.day
-      );
+      const res = await sendDayReport(props.user, tasks, hours, row.date);
       if (res.status === 200) {
         props.getData();
       }
@@ -168,7 +168,7 @@ export default function TableRender(props) {
                     type="number"
                     min={0}
                     className="hours-input"
-                    style={{ width: "100%" }}
+                    style={{ width: "100%", marginBottom: "0" }}
                     max={24}
                     value={hours}
                     onChange={(e) => setHours(+e.target.value)}
@@ -180,16 +180,27 @@ export default function TableRender(props) {
               {props.user && (
                 <StyledTableCell align="center">
                   {editing == j ? (
-                    <>
-                      <DoneIcon
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        height: "80px",
+                      }}
+                    >
+                      <CheckCircleOutlineIcon
                         style={{ cursor: "pointer" }}
                         onClick={() => onSave(row)}
                       />
-                      <ClearIcon
+                      <HighlightOffIcon
                         style={{ cursor: "pointer" }}
                         onClick={() => setEditing(-1)}
                       />
-                    </>
+                      <AddCircleOutlineIcon
+                        style={{ cursor: "pointer" }}
+                        onClick={() => setTasks((tasks) => [...tasks, ""])}
+                      />
+                    </div>
                   ) : (
                     <EditIcon
                       style={{ cursor: "pointer" }}

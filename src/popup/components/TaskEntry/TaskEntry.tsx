@@ -40,7 +40,11 @@ function TaskEntry(props) {
 
   const sendReport = async () => {
     setSendingData(true);
-    const res = await sendDayReport(props.username, entries, hours);
+    const res = await sendDayReport(
+      props.username,
+      entries.filter((entry) => entry.trim().length),
+      hours
+    );
     if (res.status === 200) {
       setEntries([""]);
       setHours(0);
@@ -176,6 +180,7 @@ function TaskEntry(props) {
             disabled={
               entries.filter((entry) => entry.trim().length).length == 0 ||
               hours < 0 ||
+              hours > 24 ||
               sendingData
             }
           >

@@ -1,5 +1,9 @@
+import moment from "moment";
+
 chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name == "notification") {
+  const now = new Date();
+  const dayOfWeek = now.getDate();
+  if (alarm.name == "notification" && dayOfWeek >= 1 && dayOfWeek <= 5) {
     chrome.storage.local.get((res) => {
       let notificationMessage = "";
       if (res.entries?.length > 0) {
@@ -22,28 +26,8 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 chrome.runtime.onMessage.addListener(function (request) {
   if (request.time) {
     chrome.alarms.create("notification", {
-      when: getAlarmTime(request.time),
+      when: moment(request.time, "HH:mm").valueOf(),
       periodInMinutes: 24 * 60,
     });
   }
 });
-
-const getAlarmTime = (time) => {
-  const now = new Date();
-  const dayOfWeek = now.getDate();
-  const hours = parseInt(time.split(":")[0]);
-  const minutes = parseInt(time.split(":")[1]);
-  const seconds = 0;
-  const milliseconds = 0;
-
-  if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-    const alarmTime = new Date();
-    alarmTime.setHours(hours, minutes, seconds, milliseconds);
-    if (alarmTime <= now) {
-      alarmTime.setDate(alarmTime.getDate() + 1);
-    }
-    return alarmTime.getTime();
-  } else {
-    return -1;
-  }
-};

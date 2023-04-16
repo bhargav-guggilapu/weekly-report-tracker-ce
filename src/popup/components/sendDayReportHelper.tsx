@@ -4,11 +4,11 @@ export const sendDayReport = async (
   username,
   tasks,
   hours,
-  customDate = moment().format("YYYY-MM-DD"),
+  date = moment().format("YYYY-MM-DD"),
   timeline = getCurrentTimeline()
 ) => {
   return await fetch(
-    `https://weekly-report-manager-default-rtdb.firebaseio.com/${username}/${timeline}/${customDate}.json`,
+    `https://weekly-report-manager-default-rtdb.firebaseio.com/${timeline}/${username}/${date}.json`,
     {
       method: "PUT",
       body: JSON.stringify({ tasks, hours }),

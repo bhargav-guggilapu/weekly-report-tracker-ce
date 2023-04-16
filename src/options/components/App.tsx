@@ -55,24 +55,24 @@ export default function App() {
     setRemainingUserRows({});
     setIsLoading(true);
     const response = await fetch(
-      `https://weekly-report-manager-default-rtdb.firebaseio.com/.json`
+      `https://weekly-report-manager-default-rtdb.firebaseio.com/${selectedTimeline}.json`
     );
     const data = await response.json();
     if (data) {
       for (const user in data) {
         if (user == username) {
-          generateTable({ userData: data[user], user }, selectedTimeline, true);
+          generateTable({ userData: data[user], user }, true);
         } else {
-          generateTable({ userData: data[user], user }, selectedTimeline);
+          generateTable({ userData: data[user], user });
         }
       }
     }
     setIsLoading(false);
   };
 
-  const generateTable = (userObject, selectedTimeline, currentUser?) => {
+  const generateTable = (userObject, currentUser = false) => {
     if (userObject.userData) {
-      const currentTimelineData: any = userObject.userData[selectedTimeline];
+      const currentTimelineData: any = userObject.userData;
       if (currentTimelineData) {
         for (const dayName in currentTimelineData) {
           const dayWork: any = currentTimelineData[dayName];

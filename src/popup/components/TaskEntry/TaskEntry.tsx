@@ -1,13 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
-import "./TaskEntry.css";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
+import React, { useEffect, useState } from "react";
 import Button, { ButtonProps } from "@mui/material/Button";
 import SendIcon from "@mui/icons-material/Send";
 import { styled } from "@mui/material/styles";
 import { yellow } from "@mui/material/colors";
 import { sendDayReport } from "../sendDayReportHelper";
 import CircularProgress from "@mui/material/CircularProgress";
+import TasksField from "./TasksField";
 
 const ColorButton = styled(Button)<ButtonProps>(({ theme }) => ({
   color: theme.palette.getContrastText(yellow[500]),
@@ -32,12 +30,6 @@ function TaskEntry(props) {
     });
   }, []);
 
-  const handleChange = (e, i) => {
-    const newEntries = [...entries];
-    newEntries[i] = e.target.value;
-    setEntries(newEntries);
-  };
-
   const sendReport = async () => {
     setSendingData(true);
     const res = await sendDayReport(
@@ -56,11 +48,12 @@ function TaskEntry(props) {
     setSendingData(false);
   };
 
-  const saveInCache = (_) =>
+  const saveInCache = (_) => {
     chrome.storage.local.set({
       hours,
       entries: entries.filter((entry) => entry.trim().length),
     });
+  };
 
   return (
     <div
@@ -81,83 +74,13 @@ function TaskEntry(props) {
       >
         What did you do today?
       </h1>
-      {entries.map((entry, index) => {
-        return (
-          <div
-            key={index}
-            style={{
-              display: "flex",
-              justifyContent: "space-evenly",
-              alignItems: "center",
-              marginBottom: "10px",
-            }}
-          >
-            {index == entries.length - 1 ? (
-              <AddCircleIcon
-                onClick={() => setEntries((entries) => [...entries, ""])}
-                style={{
-                  margin: "5px 0px",
-                  cursor: "pointer",
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  backgroundColor: "white",
-                  color: "black",
-                  width: "20px",
-                  height: "20px",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  borderRadius: "50%",
-                  margin: "5px 0px",
-                }}
-              >
-                {index + 1}
-              </div>
-            )}
-            <textarea
-              rows={2}
-              className="task-input"
-              placeholder={`Task ${index + 1}`}
-              value={entry}
-              onChange={(e) => handleChange(e, index)}
-              onBlur={saveInCache}
-            />
-            {entries.length != 1 && (
-              <RemoveCircleIcon
-                onClick={() =>
-                  setEntries((entries) => entries.filter((_, i) => i != index))
-                }
-                style={{
-                  margin: "5px 0px",
-                  cursor: "pointer",
-                }}
-              />
-            )}
-          </div>
-        );
-      })}
-      <div>
-        <label
-          style={{
-            fontSize: "15px",
-            marginRight: "15px",
-          }}
-        >
-          Hours
-        </label>
-        <input
-          type="number"
-          className="hours-input"
-          min={0}
-          max={24}
-          value={hours}
-          onChange={(e) => setHours(+e.target.value)}
-          onBlur={saveInCache}
-        ></input>
-      </div>
+      <TasksField
+        entries={entries}
+        setEntries={setEntries}
+        hours={hours}
+        setHours={setHours}
+        saveInCache={saveInCache}
+      />
       <div
         style={{
           width: "100%",

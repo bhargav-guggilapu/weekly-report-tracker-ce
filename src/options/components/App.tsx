@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   getCurrentTimeline,
   getTimelines,
+  sendDayReport,
 } from "../../popup/components/sendDayReportHelper";
 import TableRender from "./TableRender";
 import "./App.css";
@@ -17,6 +18,11 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import TasksField from "../../popup/components/TaskEntry/TasksField";
 
 function createData(date: string, day: string, tasks: string[], hours: number) {
   return { date, day, tasks, hours };
@@ -42,6 +48,34 @@ export default function App() {
     useMemo(() => getCurrentTimeline(), [])
   );
   const timelines = useMemo(() => getTimelines(), []);
+  const [notFilledDates, setNotFilledDates] = useState([]);
+
+  const [openDialog, setOpenDialog] = React.useState(false);
+  const [selectedDateDialog, setSelectedDateDialog] = React.useState("");
+  const [entriesDialog, setEntriesDialog] = useState([""]);
+  const [sendingDataDialog, setSendingDataDialog] = useState(false);
+  const [hoursDialog, setHoursDialog] = useState(0);
+
+  const getNotFilledDates = (selectedTimeline, dates) => {
+    const startDate = moment(selectedTimeline[0]);
+    const endDate = moment(selectedTimeline[1]);
+    const missingDates = [];
+
+    while (startDate.isSameOrBefore(endDate)) {
+      const formattedDate = startDate.format("YYYY-MM-DD");
+      if (formattedDate === moment().format("YYYY-MM-DD")) break;
+      if (
+        !dates.includes(formattedDate) &&
+        startDate.day() !== 0 &&
+        startDate.day() !== 6
+      ) {
+        missingDates.push(formattedDate);
+      }
+      startDate.add(1, "day");
+    }
+
+    setNotFilledDates(missingDates);
+  };
 
   useEffect(() => {
     chrome.storage.local.get((res) => {
@@ -50,9 +84,13 @@ export default function App() {
     });
   }, []);
 
-  const getData = async (username, selectedTimeline = timeline) => {
+  const getData = async (
+    username = currentUser,
+    selectedTimeline = timeline
+  ) => {
     setCurrentUserRows([]);
     setRemainingUserRows({});
+    setNotFilledDates([]);
     setIsLoading(true);
     const response = await fetch(
       `https://weekly-report-manager-default-rtdb.firebaseio.com/${selectedTimeline}.json`
@@ -61,6 +99,10 @@ export default function App() {
     if (data) {
       for (const user in data) {
         if (user == username) {
+          getNotFilledDates(
+            selectedTimeline.split("_"),
+            Object.keys(data[user])
+          );
           generateTable({ userData: data[user], user }, true);
         } else {
           generateTable({ userData: data[user], user });
@@ -188,6 +230,81 @@ export default function App() {
             ))}
           </Select>
         </FormControl>
+        {notFilledDates.length > 0 && (
+          <div style={{ marginTop: "15px", textAlign: "center" }}>
+            <h3>Fill the missing report on below dates</h3>
+            {notFilledDates.map((date) => {
+              return (
+                <Button
+                  key={date}
+                  variant="text"
+                  onClick={() => {
+                    setSelectedDateDialog(date);
+                    setOpenDialog(true);
+                  }}
+                >
+                  {date}
+                </Button>
+              );
+            })}
+          </div>
+        )}
+        <Dialog
+          open={openDialog}
+          onClose={() => {
+            setEntriesDialog([""]);
+            setHoursDialog(0);
+            setOpenDialog(false);
+          }}
+          fullWidth
+        >
+          <DialogTitle>Fill {selectedDateDialog} report</DialogTitle>
+          <DialogContent>
+            <div
+              style={{
+                maxHeight: "50vh",
+                textAlign: "center",
+              }}
+            >
+              <TasksField
+                entries={entriesDialog}
+                setEntries={setEntriesDialog}
+                hours={hoursDialog}
+                setHours={setHoursDialog}
+              />
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={async () => {
+                setSendingDataDialog(true);
+                const res = await sendDayReport(
+                  currentUser,
+                  entriesDialog.filter((entry) => entry.trim().length),
+                  hoursDialog,
+                  selectedDateDialog,
+                  timeline
+                );
+                if (res.status === 200) {
+                  setEntriesDialog([""]);
+                  setHoursDialog(0);
+                  setOpenDialog(false);
+                  getData();
+                }
+                setSendingDataDialog(false);
+              }}
+              disabled={
+                entriesDialog.filter((entry) => entry.trim().length).length ==
+                  0 ||
+                hoursDialog < 0 ||
+                hoursDialog > 24 ||
+                sendingDataDialog
+              }
+            >
+              Add
+            </Button>
+          </DialogActions>
+        </Dialog>
         <h1>Your Weekly Report</h1>
         {isLoading ? (
           <CircularProgress />
@@ -196,7 +313,7 @@ export default function App() {
             rows={currentUserRows}
             user={currentUser}
             timeline={timeline}
-            getData={() => getData(currentUser)}
+            getData={() => getData()}
             setIsLoading={setIsLoading}
           />
         ) : (

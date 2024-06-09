@@ -21,10 +21,8 @@ export const sendDayReport = async (
 
 export const getCurrentTimeline = () => {
   const today = moment();
-  const fromDate = today.day(today.day() >= 5 ? 5 : -2).format("YYYY-MM-DD");
-  const toDate = today
-    .add((4 - today.day() + 7) % 7, "days")
-    .format("YYYY-MM-DD");
+  const fromDate = today.day(today.day() >= 1 ? 1 : -6).format("YYYY-MM-DD");
+  const toDate = today.day(today.day() <= 5 ? 5 : 12).format("YYYY-MM-DD");
   return `${fromDate}_${toDate}`;
 };
 
@@ -32,7 +30,7 @@ export const getTimelines = () => {
   const currentTimeline = getCurrentTimeline();
   let currentTimelineStart = currentTimeline.split("_")[0];
   const timelines = [currentTimeline];
-  while (currentTimelineStart != "2023-04-14") {
+  while (currentTimelineStart != "2024-06-03") {
     const toDate = moment(currentTimelineStart)
       .subtract(1, "days")
       .format("YYYY-MM-DD");

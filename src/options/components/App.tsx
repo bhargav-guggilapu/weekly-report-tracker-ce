@@ -62,8 +62,8 @@ export default function App() {
     const missingDates = [];
 
     while (startDate.isSameOrBefore(endDate)) {
-      const formattedDate = startDate.format("YYYY-MM-DD");
-      if (formattedDate === moment().format("YYYY-MM-DD")) break;
+      const formattedDate = startDate.format('MM-DD-YYYY');
+      if (formattedDate === moment().format('MM-DD-YYYY')) break;
       if (
         !dates.includes(formattedDate) &&
         startDate.day() !== 0 &&
@@ -142,7 +142,7 @@ export default function App() {
       ...rows,
       createData(
         dayName,
-        moment(dayName).format("dddd"),
+        moment(dayName, 'MM-DD-YYYY').format("dddd"),
         dayWork.tasks,
         dayWork.hours
       ),

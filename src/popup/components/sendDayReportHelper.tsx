@@ -4,7 +4,7 @@ export const sendDayReport = async (
   username,
   tasks,
   hours,
-  date = moment().format("YYYY-MM-DD"),
+  date = moment().format("MM-DD-YYYY"),
   timeline = getCurrentTimeline()
 ) => {
   return await fetch(
@@ -21,8 +21,8 @@ export const sendDayReport = async (
 
 export const getCurrentTimeline = () => {
   const today = moment();
-  const fromDate = today.day(today.day() >= 1 ? 1 : -6).format("YYYY-MM-DD");
-  const toDate = today.day(today.day() <= 5 ? 5 : 12).format("YYYY-MM-DD");
+  const fromDate = today.day(today.day() >= 1 ? 1 : -6).format("MM-DD-YYYY");
+  const toDate = today.day(today.day() <= 5 ? 5 : 12).format("MM-DD-YYYY");
   return `${fromDate}_${toDate}`;
 };
 
@@ -30,11 +30,11 @@ export const getTimelines = () => {
   const currentTimeline = getCurrentTimeline();
   let currentTimelineStart = currentTimeline.split("_")[0];
   const timelines = [currentTimeline];
-  while (currentTimelineStart != "2024-06-03") {
-    const toDate = moment(currentTimelineStart)
+  while (currentTimelineStart != "06-03-2024") {
+    const toDate = moment(currentTimelineStart, 'MM-DD-YYYY')
       .subtract(1, "days")
-      .format("YYYY-MM-DD");
-    const fromDate = moment(toDate).subtract(6, "days").format("YYYY-MM-DD");
+      .format("MM-DD-YYYY");
+    const fromDate = moment(toDate, 'MM-DD-YYYY').subtract(6, "days").format("MM-DD-YYYY");
     timelines.push(`${fromDate}_${toDate}`);
     currentTimelineStart = fromDate;
   }

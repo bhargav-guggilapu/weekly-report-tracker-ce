@@ -31,10 +31,12 @@ export const getTimelines = () => {
   let currentTimelineStart = currentTimeline.split("_")[0];
   const timelines = [currentTimeline];
   while (currentTimelineStart != "06-03-2024") {
-    const toDate = moment(currentTimelineStart, 'MM-DD-YYYY')
-      .subtract(1, "days")
+    const toDate = moment(currentTimelineStart, "MM-DD-YYYY")
+      .subtract(3, "days")
       .format("MM-DD-YYYY");
-    const fromDate = moment(toDate, 'MM-DD-YYYY').subtract(6, "days").format("MM-DD-YYYY");
+    const fromDate = moment(toDate, "MM-DD-YYYY")
+      .subtract(4, "days")
+      .format("MM-DD-YYYY"); 
     timelines.push(`${fromDate}_${toDate}`);
     currentTimelineStart = fromDate;
   }

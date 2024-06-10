@@ -57,8 +57,8 @@ export default function App() {
   const [hoursDialog, setHoursDialog] = useState(0);
 
   const getNotFilledDates = (selectedTimeline, dates) => {
-    const startDate = moment(selectedTimeline[0]);
-    const endDate = moment(selectedTimeline[1]);
+    const startDate = moment(selectedTimeline[0], 'MM-DD-YYYY');
+    const endDate = moment(selectedTimeline[1], 'MM-DD-YYYY');
     const missingDates = [];
 
     while (startDate.isSameOrBefore(endDate)) {

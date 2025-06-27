@@ -56,27 +56,31 @@ export default function App() {
   const [sendingDataDialog, setSendingDataDialog] = useState(false);
   const [hoursDialog, setHoursDialog] = useState(0);
 
-  const getNotFilledDates = (selectedTimeline, dates) => {
-    const startDate = moment(selectedTimeline[0], 'MM-DD-YYYY');
-    const endDate = moment(selectedTimeline[1], 'MM-DD-YYYY');
+  const getNotFilledDates = (selectedTimeline, dates = []) => {
+    const startDate = moment(selectedTimeline[0], "MM-DD-YYYY");
+    const endDate = moment.min(
+      moment(selectedTimeline[1], "MM-DD-YYYY"),
+      moment()
+    ); // Don't go beyond today
     const missingDates = [];
 
-    while (startDate.isSameOrBefore(endDate)) {
-      const formattedDate = startDate.format('MM-DD-YYYY');
-      if (formattedDate === moment().format('MM-DD-YYYY')) break;
-      if (
-        !dates.includes(formattedDate) &&
-        startDate.day() !== 0 &&
-        startDate.day() !== 6
-      ) {
-        missingDates.push(formattedDate);
+    const filledSet = new Set(dates);
+
+    while (startDate.isSameOrBefore(endDate, "day")) {
+      const formattedDate = startDate.format("MM-DD-YYYY");
+
+      // Skip weekends
+      if (startDate.day() !== 0 && startDate.day() !== 6) {
+        if (!filledSet.has(formattedDate)) {
+          missingDates.push(formattedDate);
+        }
       }
+
       startDate.add(1, "day");
     }
 
     setNotFilledDates(missingDates);
   };
-
   useEffect(() => {
     chrome.storage.local.get((res) => {
       setCurrentUser(res.username);
@@ -142,7 +146,7 @@ export default function App() {
       ...rows,
       createData(
         dayName,
-        moment(dayName, 'MM-DD-YYYY').format("dddd"),
+        moment(dayName, "MM-DD-YYYY").format("dddd"),
         dayWork.tasks,
         dayWork.hours
       ),
@@ -221,6 +225,13 @@ export default function App() {
             onChange={(event) => {
               setTimeline(event.target.value);
               getData(currentUser, event.target.value);
+            }}
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  maxHeight: 48 * 5.5, // Each item approx 48px tall, with a bit extra for padding
+                },
+              },
             }}
           >
             {timelines.map((timeline) => (

@@ -30,7 +30,7 @@ export const getTimelines = () => {
   const currentTimeline = getCurrentTimeline();
   let currentTimelineStart = currentTimeline.split("_")[0];
   const timelines = [currentTimeline];
-  while (currentTimelineStart != "06-03-2024") {
+  while (currentTimelineStart != "12-30-2024") {
     const toDate = moment(currentTimelineStart, "MM-DD-YYYY")
       .subtract(3, "days")
       .format("MM-DD-YYYY");

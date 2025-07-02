@@ -65,12 +65,17 @@ export default function App() {
     const missingDates = [];
 
     const filledSet = new Set(dates);
+    const today = moment().format("MM-DD-YYYY");
 
     while (startDate.isSameOrBefore(endDate, "day")) {
       const formattedDate = startDate.format("MM-DD-YYYY");
 
-      // Skip weekends
-      if (startDate.day() !== 0 && startDate.day() !== 6) {
+      // Skip weekends and today
+      if (
+        startDate.day() !== 0 &&
+        startDate.day() !== 6 &&
+        formattedDate !== today
+      ) {
         if (!filledSet.has(formattedDate)) {
           missingDates.push(formattedDate);
         }
@@ -81,6 +86,7 @@ export default function App() {
 
     setNotFilledDates(missingDates);
   };
+
   useEffect(() => {
     chrome.storage.local.get((res) => {
       setCurrentUser(res.username);
@@ -112,6 +118,8 @@ export default function App() {
           generateTable({ userData: data[user], user });
         }
       }
+    } else {
+      getNotFilledDates(selectedTimeline.split("_"));
     }
     setIsLoading(false);
   };
